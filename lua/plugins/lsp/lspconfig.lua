@@ -13,6 +13,11 @@ return {
 		-- import cmp-nvim-lsp plugin
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
+		local lsp_flags = {
+			-- This is the default in Nvim 0.7+
+			debounce_text_changes = 150,
+		}
+
 		local keymap = vim.keymap -- for conciseness
 
 		local opts = { noremap = true, silent = true }
@@ -95,6 +100,25 @@ return {
 			on_attach = on_attach,
 		})
 
+		--configure clang server
+		lspconfig["clangd"].setup({
+			capabilities = capabilities,
+			on_attach = on_attach,
+			filetypes = { "h", "c", "cpp", "cc", "objc", "objcpp" },
+			flags = lsp_flags,
+			cmd = { "clangd", "--background-index" },
+			single_file_support = true,
+			root_dir = lspconfig.util.root_pattern(
+				".clangd",
+				".clang-tidy",
+				".clang-format",
+				"compile_commands.json",
+				"compile_flags.txt",
+				"configure.ac",
+				".git"
+			),
+		})
+
 		-- configure svelte server
 		-- lspconfig["svelte"].setup({
 		-- 	capabilities = capabilities,
@@ -118,8 +142,25 @@ return {
 			on_attach = on_attach,
 		})
 
+		local project_library_path = "/Users/ignasdavulis/.nvm/versions/node/v20.11.1/lib/node_modules"
+		local cmd = {
+			"node",
+			"/Users/ignasdavulis/.nvm/versions/node/v20.11.1/lib/node_modules/@angular/language-server",
+			"--stdio",
+			"--tsProbeLocations",
+			project_library_path,
+			"--ngProbeLocations",
+			project_library_path,
+		}
+
 		lspconfig["angularls"].setup({
+			on_attach = on_attach,
+			capabilities = capabilities,
+			cmd = cmd,
 			root_dir = util.root_pattern("angular.json", "project.json"),
+			on_new_config = function(new_config, new_root_dir)
+				new_config.cmd = cmd
+			end,
 		})
 
 		-- configure graphql language server
