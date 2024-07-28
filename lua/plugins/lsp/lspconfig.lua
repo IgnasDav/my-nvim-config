@@ -120,21 +120,21 @@ return {
 		})
 
 		-- configure svelte server
-		-- lspconfig["svelte"].setup({
-		-- 	capabilities = capabilities,
-		-- 	on_attach = function(client, bufnr)
-		-- 		on_attach(client, bufnr)
-		--
-		-- 		vim.api.nvim_create_autocmd("BufWritePost", {
-		-- 			pattern = { "*.js", "*.ts" },
-		-- 			callback = function(ctx)
-		-- 				if client.name == "svelte" then
-		-- 					client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.file })
-		-- 				end
-		-- 			end,
-		-- 		})
-		-- 	end,
-		-- })
+		lspconfig["svelte"].setup({
+			capabilities = capabilities,
+			on_attach = function(client, bufnr)
+				on_attach(client, bufnr)
+
+				vim.api.nvim_create_autocmd("BufWritePost", {
+					pattern = { "*.js", "*.ts" },
+					callback = function(ctx)
+						if client.name == "svelte" then
+							client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.file })
+						end
+					end,
+				})
+			end,
+		})
 
 		-- configure prisma orm server
 		lspconfig["prismals"].setup({
@@ -202,6 +202,11 @@ return {
 					},
 				},
 			},
+		})
+
+		lspconfig["sourcekit"].setup({
+			capabilities = capabilities,
+			on_attach = on_attach,
 		})
 	end,
 }
